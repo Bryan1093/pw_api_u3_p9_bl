@@ -2,6 +2,7 @@ package uce.edu.web.api.matricula.interfaces;
 
 import java.util.List;
 
+import jakarta.ws.rs.Produces;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -11,10 +12,14 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.core.Response;
 import uce.edu.web.api.matricula.application.MateriaService;
 import uce.edu.web.api.matricula.domain.Materia;
 
 @Path("/materias")
+
 public class MateriaResource {
 
     @Inject
@@ -22,26 +27,30 @@ public class MateriaResource {
 
     @GET
     @Path("")
+    @Consumes(MediaType.APPLICATION_JSON)
     public List<Materia> listarTodos() {
         return this.materiaService.listarTodos();
     }
 
     @GET
     @Path("/{id}")
+    @Produces(MediaType.APPLICATION_XML)
     public Materia listarPorId(@PathParam("id") Integer identificador) {
         return this.materiaService.consultarPorId(identificador);
     }
 
     @POST
     @Path("")
-    public void guardarMateria(Materia materia) {
+    public Response guardarMateria(Materia materia) {
         this.materiaService.crearMateria(materia);
+        return Response.status(Response.Status.CREATED).entity(materia).build();
     }
 
     @PUT
     @Path("/{id}")
-    public void actualizarMateria(@PathParam("id") Integer id, Materia materia) {
+    public Response actualizarMateria(@PathParam("id") Integer id, Materia materia) {
         this.materiaService.actualizarMateria(id, materia);
+        return Response.status(209).entity(null).build();
     }
 
     @PATCH
