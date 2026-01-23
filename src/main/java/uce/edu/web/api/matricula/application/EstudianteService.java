@@ -54,4 +54,8 @@ public class EstudianteService {
     public void eliminarEstudiante(Integer id) {
         this.estudianteRepository.deleteById(id.longValue());
     }
+
+    public List<Estudiante> listarPorProvincia(String provincia, String genero) {
+        return this.estudianteRepository.find("provincia = ?1 and genero = ?2", provincia, genero).list();
+    }
 }
