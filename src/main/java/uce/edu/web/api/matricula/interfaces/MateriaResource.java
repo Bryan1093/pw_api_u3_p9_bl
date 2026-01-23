@@ -21,54 +21,54 @@ public class MateriaResource {
     private MateriaService materiaService;
 
     @GET
-    @Path("/todos")
+    @Path("")
     public List<Materia> listarTodos() {
         return this.materiaService.listarTodos();
     }
 
     @GET
-    @Path("/consultarPorId/{id}")
+    @Path("/{id}")
     public Materia listarPorId(@PathParam("id") Integer identificador) {
         return this.materiaService.consultarPorId(identificador);
     }
 
     @POST
-    @Path("/guardar")
+    @Path("")
     public void guardarMateria(Materia materia) {
         this.materiaService.crearMateria(materia);
     }
 
     @PUT
-    @Path("/actualizar/{id}")
+    @Path("/{id}")
     public void actualizarMateria(@PathParam("id") Integer id, Materia materia) {
         this.materiaService.actualizarMateria(id, materia);
     }
 
     @PATCH
-    @Path("/actualizarParcial/{id}")
+    @Path("/{id}")
     public void actualizarMateriaParcial(@PathParam("id") Integer id, Materia materia) {
         this.materiaService.actualizacionParcial(id, materia);
     }
 
     @DELETE
-    @Path("/eliminar/{id}")
+    @Path("/{id}")
     public void eliminarMateria(@PathParam("id") Integer id) {
         this.materiaService.eliminarMateria(id);
     }
 
     // Endpoint adicional 1: Buscar materia por código
     @GET
-    @Path("/buscarPorCodigo/{codigo}")
+    @Path("/codigo/{codigo}")
     public Materia buscarPorCodigo(@PathParam("codigo") String codigo) {
         return this.materiaService.buscarPorCodigo(codigo);
     }
 
     // Endpoint adicional 2: Listar materias por rango de créditos
     @GET
-    @Path("/buscarPorCreditos")
+    @Path("/creditos/{min}/{max}")
     public List<Materia> listarPorCreditos(
-            @QueryParam("min") Integer creditosMin,
-            @QueryParam("max") Integer creditosMax) {
+            @PathParam("min") Integer creditosMin,
+            @PathParam("max") Integer creditosMax) {
         return this.materiaService.listarPorCreditos(creditosMin, creditosMax);
     }
 }
