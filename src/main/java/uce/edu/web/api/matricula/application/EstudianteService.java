@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import uce.edu.web.api.matricula.application.representation.EstudianteRepresentation;
 import uce.edu.web.api.matricula.domain.Estudiante;
 import uce.edu.web.api.matricula.infrastructure.EstudianteRepository;
 
@@ -14,22 +15,52 @@ public class EstudianteService {
     @Inject
     private EstudianteRepository estudianteRepository;
 
-    public List<Estudiante> listarTodos() {
-        return this.estudianteRepository.findAll().list();
+    private EstudianteRepresentation mapperToER(Estudiante estudiante) {
+        EstudianteRepresentation estudianteRepresentation = new EstudianteRepresentation();
+        estudianteRepresentation.setId(estudiante.getId());
+        estudianteRepresentation.setNombre(estudiante.getNombre());
+        estudianteRepresentation.setApellido(estudiante.getApellido());
+        estudianteRepresentation.setFechaNacimiento(estudiante.getFechaNacimiento());
+        estudianteRepresentation.setProvincia(estudiante.getProvincia());
+        estudianteRepresentation.setGenero(estudiante.getGenero());
+        return estudianteRepresentation;
     }
 
-    public Estudiante consultarPorId(Integer id) {
-        return this.estudianteRepository.findById(id.longValue());
+    private Estudiante mapperToEstudiante(EstudianteRepresentation estudiante) {
+        Estudiante estudiante1 = new Estudiante();
+        estudiante1.setId(estudiante.getId());
+        estudiante1.setNombre(estudiante.getNombre());
+        estudiante1.setApellido(estudiante.getApellido());
+        estudiante1.setFechaNacimiento(estudiante.getFechaNacimiento());
+        estudiante1.setProvincia(estudiante.getProvincia());
+        estudiante1.setGenero(estudiante.getGenero());
+        return estudiante1;
+    }
+
+    public List<EstudianteRepresentation> listarTodos() {
+        return this.estudianteRepository.findAll().list().stream()
+                .map(this::mapperToER)
+                .toList();
+    }
+
+    public EstudianteRepresentation consultarPorId(Integer id) {
+        Estudiante e = this.estudianteRepository.findById(id.longValue());
+        if (e == null) {
+            return null;
+        }
+        return this.mapperToER(e);
     }
 
     @Transactional
-    public void crearEstudiante(Estudiante estudiante) {
-        this.estudianteRepository.persist(estudiante);
+    public void crearEstudiante(EstudianteRepresentation estudiante) {
+        Estudiante e = this.mapperToEstudiante(estudiante);
+        this.estudianteRepository.persist(e);
     }
 
     @Transactional
-    public void actualizarEstudiante(Integer id, Estudiante estudiante) {
-        Estudiante estudianteActual = this.consultarPorId(id);
+    public void actualizarEstudiante(Integer id, EstudianteRepresentation estudiante) {
+        EstudianteRepresentation estudianteActual = this.consultarPorId(id);
+
         estudianteActual.setNombre(estudiante.getNombre());
         estudianteActual.setApellido(estudiante.getApellido());
         estudianteActual.setFechaNacimiento(estudiante.getFechaNacimiento());
@@ -37,8 +68,9 @@ public class EstudianteService {
     }
 
     @Transactional
-    public void actualizacionParcial(Integer id, Estudiante estudiante) {
-        Estudiante estudianteActual = this.consultarPorId(id);
+    public void actualizacionParcial(Integer id, EstudianteRepresentation estudiante) {
+        Estudiante estudianteActual = this.estudianteRepository.findById(id.longValue());
+
         if (estudiante.getNombre() != null) {
             estudianteActual.setNombre(estudiante.getNombre());
         }
@@ -55,7 +87,9 @@ public class EstudianteService {
         this.estudianteRepository.deleteById(id.longValue());
     }
 
-    public List<Estudiante> listarPorProvincia(String provincia, String genero) {
-        return this.estudianteRepository.find("provincia = ?1 and genero = ?2", provincia, genero).list();
+    public List<EstudianteRepresentation> listarPorProvincia(String provincia, String genero) {
+        return this.estudianteRepository.find("provincia = ?1 and genero = ?2", provincia, genero).list().stream()
+                .map(this::mapperToER).toList();
     }
+
 }
