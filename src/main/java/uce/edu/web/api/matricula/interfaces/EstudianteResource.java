@@ -24,7 +24,6 @@ import uce.edu.web.api.matricula.application.representation.HijoRepresentation;
 import uce.edu.web.api.matricula.application.representation.LinkDto;
 
 @Path("/estudiantes")
-
 public class EstudianteResource {
 
     @Inject
@@ -40,14 +39,20 @@ public class EstudianteResource {
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     public List<EstudianteRepresentation> listarTodos() {
-        return this.estudianteService.listarTodos().stream().map(estudiante -> addLinks(estudiante)).toList();
+        return this.estudianteService.listarTodos().stream()
+                .map(estudiante -> addLinks(estudiante))
+                .toList();
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public EstudianteRepresentation listarPorId(@PathParam("id") Integer identificador) {
-        return this.addLinks(this.estudianteService.consultarPorId(identificador));
+    public Response listarPorId(@PathParam("id") Integer identificador) {
+        EstudianteRepresentation estudiante = this.estudianteService.consultarPorId(identificador);
+        if (estudiante == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(this.addLinks(estudiante)).build();
     }
 
     @POST
@@ -71,14 +76,16 @@ public class EstudianteResource {
     @PATCH
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void actualizarEstudianteParcial(@PathParam("id") Integer id, EstudianteRepresentation estudiante) {
+    public Response actualizarEstudianteParcial(@PathParam("id") Integer id, EstudianteRepresentation estudiante) {
         this.estudianteService.actualizacionParcial(id, estudiante);
+        return Response.noContent().build();
     }
 
     @DELETE
     @Path("/{id}")
-    public void eliminarEstudiante(@PathParam("id") Integer id) {
+    public Response eliminarEstudiante(@PathParam("id") Integer id) {
         this.estudianteService.eliminarEstudiante(id);
+        return Response.noContent().build();
     }
 
     @GET
@@ -97,10 +104,20 @@ public class EstudianteResource {
     }
 
     private EstudianteRepresentation addLinks(EstudianteRepresentation estudiante) {
-        String self = this.uriInfo.getBaseUriBuilder().path("estudiantes").path(estudiante.getId().toString()).build()
+        if (estudiante == null || estudiante.getId() == null) {
+            return estudiante;
+        }
+        String self = this.uriInfo.getBaseUriBuilder()
+                .path("estudiantes")
+                .path(estudiante.getId().toString())
+                .build()
                 .toString();
-        String hijos = this.uriInfo.getBaseUriBuilder().path("estudiantes").path(estudiante.getId().toString())
-                .path("hijos").build().toString();
+        String hijos = this.uriInfo.getBaseUriBuilder()
+                .path("estudiantes")
+                .path(estudiante.getId().toString())
+                .path("hijos")
+                .build()
+                .toString();
         estudiante.setLinks(List.of(new LinkDto(self, "self"), new LinkDto(hijos, "hijos")));
         return estudiante;
     }
