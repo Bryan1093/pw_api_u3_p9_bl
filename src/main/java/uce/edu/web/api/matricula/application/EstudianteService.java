@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import uce.edu.web.api.matricula.application.representation.EstudianteRepresentation;
+import uce.edu.web.api.matricula.application.representation.HijoRepresentation;
 import uce.edu.web.api.matricula.domain.Estudiante;
 import uce.edu.web.api.matricula.infrastructure.EstudianteRepository;
 
@@ -23,6 +24,21 @@ public class EstudianteService {
         estudianteRepresentation.setFechaNacimiento(estudiante.getFechaNacimiento());
         estudianteRepresentation.setProvincia(estudiante.getProvincia());
         estudianteRepresentation.setGenero(estudiante.getGenero());
+
+        // Mapear los hijos si existen
+        if (estudiante.hijos != null && !estudiante.hijos.isEmpty()) {
+            List<HijoRepresentation> hijosRepresentation = estudiante.hijos.stream()
+                    .map(hijo -> {
+                        HijoRepresentation hr = new HijoRepresentation();
+                        hr.setId(hijo.getId());
+                        hr.setNombre(hijo.getNombre());
+                        hr.setApellido(hijo.getApellido());
+                        return hr;
+                    })
+                    .toList();
+            estudianteRepresentation.setHijos(hijosRepresentation);
+        }
+
         return estudianteRepresentation;
     }
 
